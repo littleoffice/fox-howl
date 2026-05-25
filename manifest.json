@@ -1,0 +1,52 @@
+{
+  "manifest_version": 2,
+  "name": "Fox Howl",
+  "version": "1.0",
+  "description": "Read selected text aloud via Kokoro TTS",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "fox-howl@addon",
+      "strict_min_version": "91.0"
+    }
+  },
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "storage",
+    "<all_urls>"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "icons/icon.svg",
+      "96": "icons/icon.svg"
+    },
+    "default_title": "Fox Howl TTS"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
+  "commands": {
+    "speak-selection": {
+      "suggested_key": {
+        "default": "Alt+S"
+      },
+      "description": "Speak selected text"
+    }
+  },
+  "icons": {
+    "48": "icons/icon.svg",
+    "96": "icons/icon.svg"
+  }
+}

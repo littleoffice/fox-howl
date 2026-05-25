@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <h2>Fox Howl Settings</h2>
+
+  <div class="field">
+    <label for="serverUrl">Server URL</label>
+    <div class="inline-row">
+      <input type="text" id="serverUrl" placeholder="http://localhost:8880">
+      <button id="testConnection" class="secondary">Test</button>
+    </div>
+    <div class="hint" id="certHint">If using HTTPS with a self-signed certificate, click Test to open the server in Firefox and accept the certificate first.</div>
+  </div>
+
+  <div class="field">
+    <label for="voice">Default Voice</label>
+    <div class="inline-row">
+      <select id="voice"></select>
+      <button id="fetchVoices" class="secondary">Refresh</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="responseFormat">Response Format</label>
+    <div class="inline-row">
+      <select id="responseFormat">
+        <option value="pcm">pcm (streaming, low latency)</option>
+        <option value="wav">wav</option>
+        <option value="mp3">mp3</option>
+        <option value="opus">opus</option>
+        <option value="aac">aac</option>
+        <option value="flac">flac</option>
+      </select>
+    </div>
+    <div class="hint">
+      <label style="font-weight:400;display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+        <input type="checkbox" id="stream"> Stream response (recommended for pcm)
+      </label>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="shortcut">Keyboard Shortcut</label>
+    <div class="inline-row">
+      <input type="text" id="shortcut" readonly placeholder="Click and press keys...">
+      <button id="clearShortcut" class="secondary">Clear</button>
+    </div>
+    <div class="hint">Click the field, then press your desired shortcut. Must include Ctrl or Alt.</div>
+  </div>
+
+  <div class="actions">
+    <button id="save">Save</button>
+    <span id="status"></span>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

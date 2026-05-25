@@ -1,0 +1,159 @@
+const serverUrlInput = document.getElementById("serverUrl");
+const voiceSelect = document.getElementById("voice");
+const fetchBtn = document.getElementById("fetchVoices");
+const testBtn = document.getElementById("testConnection");
+const certHint = document.getElementById("certHint");
+const responseFormatSelect = document.getElementById("responseFormat");
+const streamCheckbox = document.getElementById("stream");
+const shortcutInput = document.getElementById("shortcut");
+const clearShortcutBtn = document.getElementById("clearShortcut");
+const saveBtn = document.getElementById("save");
+const statusEl = document.getElementById("status");
+
+let pendingShortcut = null;
+
+async function init() {
+  const settings = await browser.storage.local.get({
+    serverUrl: "http://localhost:8880",
+    voice: "af_heart",
+    responseFormat: "pcm",
+    stream: true
+  });
+  serverUrlInput.value = settings.serverUrl;
+  responseFormatSelect.value = settings.responseFormat;
+  streamCheckbox.checked = settings.stream;
+  await fetchVoices(settings.serverUrl, settings.voice);
+  await loadCurrentShortcut();
+}
+
+async function loadCurrentShortcut() {
+  try {
+    const commands = await browser.commands.getAll();
+    const cmd = commands.find((c) => c.name === "speak-selection");
+    if (cmd && cmd.shortcut) {
+      shortcutInput.value = cmd.shortcut;
+    } else {
+      shortcutInput.value = "";
+      shortcutInput.placeholder = "No shortcut set";
+    }
+  } catch {
+    shortcutInput.value = "Alt+S";
+  }
+}
+
+async function fetchVoices(serverUrl, currentVoice) {
+  try {
+    const result = await browser.runtime.sendMessage({
+      action: "fetchVoices",
+      serverUrl: serverUrl
+    });
+    if (result.ok) {
+      voiceSelect.innerHTML = "";
+      for (const v of result.voices) {
+        const opt = document.createElement("option");
+        opt.value = v;
+        opt.textContent = v;
+        if (v === currentVoice) opt.selected = true;
+        voiceSelect.appendChild(opt);
+      }
+      statusEl.textContent = `${result.voices.length} voices loaded`;
+      statusEl.className = "";
+    } else {
+      throw new Error(result.error);
+    }
+  } catch (err) {
+    voiceSelect.innerHTML = `<option>${currentVoice || "af_heart"}</option>`;
+    statusEl.textContent = err.message || "Cannot reach server";
+    statusEl.className = "error";
+    if (serverUrlInput.value.trim().startsWith("https")) {
+      certHint.style.display = "block";
+    }
+  }
+}
+
+fetchBtn.addEventListener("click", () => {
+  fetchVoices(serverUrlInput.value, voiceSelect.value);
+});
+
+testBtn.addEventListener("click", () => {
+  const url = serverUrlInput.value.trim();
+  if (!url) {
+    statusEl.textContent = "Enter a server URL first";
+    statusEl.className = "error";
+    return;
+  }
+  browser.runtime.sendMessage({ action: "openServerTab", serverUrl: url });
+  statusEl.textContent = "Opened server page — accept the certificate if prompted, then click Refresh";
+  statusEl.className = "";
+});
+
+shortcutInput.addEventListener("keydown", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (["Control", "Alt", "Shift", "Meta"].includes(e.key)) return;
+
+  const parts = [];
+  if (e.ctrlKey) parts.push("Ctrl");
+  if (e.altKey) parts.push("Alt");
+  if (e.shiftKey) parts.push("Shift");
+
+  if (!e.ctrlKey && !e.altKey) {
+    statusEl.textContent = "Shortcut must include Ctrl or Alt";
+    statusEl.className = "error";
+    return;
+  }
+
+  let key = e.key;
+  if (key === " ") key = "Space";
+  else if (key.length === 1) key = key.toUpperCase();
+
+  parts.push(key);
+  pendingShortcut = parts.join("+");
+  shortcutInput.value = pendingShortcut;
+  statusEl.textContent = "Press Save to apply";
+  statusEl.className = "";
+});
+
+clearShortcutBtn.addEventListener("click", async () => {
+  try {
+    await browser.commands.reset("speak-selection");
+    pendingShortcut = null;
+    await loadCurrentShortcut();
+    statusEl.textContent = "Shortcut reset to default (Alt+S)";
+    statusEl.className = "";
+  } catch (err) {
+    statusEl.textContent = err.message;
+    statusEl.className = "error";
+  }
+});
+
+saveBtn.addEventListener("click", async () => {
+  browser.storage.local.set({
+    serverUrl: serverUrlInput.value.trim(),
+    voice: voiceSelect.value,
+    responseFormat: responseFormatSelect.value,
+    stream: streamCheckbox.checked
+  });
+
+  if (pendingShortcut) {
+    try {
+      await browser.commands.update({
+        name: "speak-selection",
+        shortcut: pendingShortcut
+      });
+      pendingShortcut = null;
+      statusEl.textContent = "Saved";
+      statusEl.className = "";
+    } catch (err) {
+      statusEl.textContent = `Invalid shortcut: ${err.message}`;
+      statusEl.className = "error";
+      return;
+    }
+  } else {
+    statusEl.textContent = "Saved";
+    statusEl.className = "";
+  }
+});
+
+init();
