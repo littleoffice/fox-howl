@@ -51,7 +51,10 @@ async function fetchVoices(serverUrl, currentVoice) {
       serverUrl: serverUrl
     });
     if (result.ok) {
-      voiceSelect.innerHTML = "";
+      // Safe DOM construction instead of innerHTML
+      while (voiceSelect.firstChild) {
+        voiceSelect.removeChild(voiceSelect.firstChild);
+      }
       for (const v of result.voices) {
         const opt = document.createElement("option");
         opt.value = v;
@@ -65,7 +68,14 @@ async function fetchVoices(serverUrl, currentVoice) {
       throw new Error(result.error);
     }
   } catch (err) {
-    voiceSelect.innerHTML = `<option>${currentVoice || "af_heart"}</option>`;
+    // Safe DOM construction instead of innerHTML
+    while (voiceSelect.firstChild) {
+      voiceSelect.removeChild(voiceSelect.firstChild);
+    }
+    const opt = document.createElement("option");
+    opt.value = currentVoice || "af_heart";
+    opt.textContent = currentVoice || "af_heart";
+    voiceSelect.appendChild(opt);
     statusEl.textContent = err.message || "Cannot reach server";
     statusEl.className = "error";
     if (serverUrlInput.value.trim().startsWith("https")) {
