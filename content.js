@@ -32,6 +32,7 @@ async function speak(text) {
   const settings = await browser.storage.local.get({
     serverUrl: "http://localhost:8880",
     voice: "af_heart",
+    model: "kokoro",
     responseFormat: "pcm",
     stream: true
   });
@@ -47,7 +48,8 @@ async function speak(text) {
   notifyStatus("playing");
 
   console.log("[fox-howl] opening port to background, server:", settings.serverUrl,
-    "voice:", settings.voice, "format:", settings.responseFormat, "stream:", settings.stream);
+    "voice:", settings.voice, "model:", settings.model,
+    "format:", settings.responseFormat, "stream:", settings.stream);
 
   currentPort = browser.runtime.connect({ name: "fox-howl-tts" });
 
@@ -82,6 +84,7 @@ async function speak(text) {
     text: text,
     serverUrl: settings.serverUrl,
     voice: settings.voice,
+    model: settings.model,
     responseFormat: settings.responseFormat,
     stream: settings.stream
   });

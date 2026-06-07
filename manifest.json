@@ -28,8 +28,8 @@
   "browser_action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "48": "icons/icon.svg",
-      "96": "icons/icon.svg"
+      "48": "icons/fox-how.svg",
+      "96": "icons/fox-how.svg"
     },
     "default_title": "Fox Howl TTS"
   },
@@ -46,7 +46,7 @@
     }
   },
   "icons": {
-    "48": "icons/icon.svg",
-    "96": "icons/icon.svg"
+    "48": "icons/fox-how.svg",
+    "96": "icons/fox-how.svg"
   }
 }

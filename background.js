@@ -51,7 +51,15 @@ async function fetchVoices(serverUrl) {
   try {
     const res = await fetch(`${serverUrl}/v1/audio/voices`);
     const data = await res.json();
-    return { ok: true, voices: data.voices };
+    // Kokoro-FastAPI returns { voices: ["af_heart", ...] }
+    // Kokoros / OpenAI-compatible servers return { data: [{ id: "..." }, ...] }
+    const voices =
+      Array.isArray(data.voices) ? data.voices :
+      Array.isArray(data.data)   ? data.data.map(v => (typeof v === "string" ? v : v.id)) :
+      Array.isArray(data)        ? data :
+      null;
+    if (!voices) throw new Error("Unexpected voices response format");
+    return { ok: true, voices };
   } catch (err) {
     const msg = err.message || "";
     const isCertIssue = serverUrl.startsWith("https") &&
@@ -83,7 +91,7 @@ browser.runtime.onConnect.addListener((port) => {
           body: JSON.stringify({
             input: msg.text,
             voice: msg.voice,
-            model: "kokoro",
+            model: msg.model || "kokoro",
             response_format: msg.responseFormat || "pcm",
             stream: msg.stream !== undefined ? msg.stream : true
           }),

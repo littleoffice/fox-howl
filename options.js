@@ -1,4 +1,5 @@
 const serverUrlInput = document.getElementById("serverUrl");
+const modelInput = document.getElementById("model");
 const voiceSelect = document.getElementById("voice");
 const fetchBtn = document.getElementById("fetchVoices");
 const testBtn = document.getElementById("testConnection");
@@ -16,10 +17,12 @@ async function init() {
   const settings = await browser.storage.local.get({
     serverUrl: "http://localhost:8880",
     voice: "af_heart",
+    model: "kokoro",
     responseFormat: "pcm",
     stream: true
   });
   serverUrlInput.value = settings.serverUrl;
+  modelInput.value = settings.model;
   responseFormatSelect.value = settings.responseFormat;
   streamCheckbox.checked = settings.stream;
   await fetchVoices(settings.serverUrl, settings.voice);
@@ -131,6 +134,7 @@ clearShortcutBtn.addEventListener("click", async () => {
 saveBtn.addEventListener("click", async () => {
   browser.storage.local.set({
     serverUrl: serverUrlInput.value.trim(),
+    model: modelInput.value.trim() || "kokoro",
     voice: voiceSelect.value,
     responseFormat: responseFormatSelect.value,
     stream: streamCheckbox.checked

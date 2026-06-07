@@ -73,7 +73,12 @@ voiceSelect.addEventListener("change", () => {
 });
 
 playBtn.addEventListener("click", () => {
-  browser.storage.local.set({ voice: voiceSelect.value });
+  // Always flush both fields to storage before speaking, so the content
+  // script reads the exact URL shown in the popup even if the input's
+  // `change` event hasn't fired yet (e.g. user typed and clicked Speak
+  // without blurring the field first).
+  const url = serverUrlInput.value.trim();
+  browser.storage.local.set({ serverUrl: url, voice: voiceSelect.value });
   browser.runtime.sendMessage({ target: "content", action: "speak" });
   setPlaying(true);
 });
