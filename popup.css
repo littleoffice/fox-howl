@@ -89,23 +89,3 @@ button:disabled {
 #status.error {
   color: #e74c3c;
 }
-
-.url-row {
-  display: flex;
-  gap: 4px;
-}
-
-.url-row input {
-  flex: 1;
-}
-
-.test-btn {
-  flex: none;
-  padding: 4px 8px;
-  font-size: 11px;
-  background: #6b7280;
-}
-
-.test-btn:hover {
-  background: #555e6b;
-}

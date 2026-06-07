@@ -101,9 +101,3 @@ button:hover {
 #status.error {
   color: #e74c3c;
 }
-
-#certHint {
-  color: #b8860b;
-  font-size: 12px;
-  margin-top: 4px;
-}

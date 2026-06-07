@@ -2,8 +2,6 @@ const serverUrlInput = document.getElementById("serverUrl");
 const modelInput = document.getElementById("model");
 const voiceSelect = document.getElementById("voice");
 const fetchBtn = document.getElementById("fetchVoices");
-const testBtn = document.getElementById("testConnection");
-const certHint = document.getElementById("certHint");
 const responseFormatSelect = document.getElementById("responseFormat");
 const streamCheckbox = document.getElementById("stream");
 const shortcutInput = document.getElementById("shortcut");
@@ -51,7 +49,6 @@ async function fetchVoices(serverUrl, currentVoice) {
       serverUrl: serverUrl
     });
     if (result.ok) {
-      // Safe DOM construction instead of innerHTML
       while (voiceSelect.firstChild) {
         voiceSelect.removeChild(voiceSelect.firstChild);
       }
@@ -68,7 +65,6 @@ async function fetchVoices(serverUrl, currentVoice) {
       throw new Error(result.error);
     }
   } catch (err) {
-    // Safe DOM construction instead of innerHTML
     while (voiceSelect.firstChild) {
       voiceSelect.removeChild(voiceSelect.firstChild);
     }
@@ -78,26 +74,11 @@ async function fetchVoices(serverUrl, currentVoice) {
     voiceSelect.appendChild(opt);
     statusEl.textContent = err.message || "Cannot reach server";
     statusEl.className = "error";
-    if (serverUrlInput.value.trim().startsWith("https")) {
-      certHint.style.display = "block";
-    }
   }
 }
 
 fetchBtn.addEventListener("click", () => {
   fetchVoices(serverUrlInput.value, voiceSelect.value);
-});
-
-testBtn.addEventListener("click", () => {
-  const url = serverUrlInput.value.trim();
-  if (!url) {
-    statusEl.textContent = "Enter a server URL first";
-    statusEl.className = "error";
-    return;
-  }
-  browser.runtime.sendMessage({ action: "openServerTab", serverUrl: url });
-  statusEl.textContent = "Opened server page — accept the certificate if prompted, then click Refresh";
-  statusEl.className = "";
 });
 
 shortcutInput.addEventListener("keydown", (e) => {

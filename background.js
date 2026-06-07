@@ -31,12 +31,6 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true; // async response
   }
 
-  if (message.action === "openServerTab") {
-    const url = message.serverUrl.replace(/\/+$/, "") + "/docs";
-    browser.tabs.create({ url });
-    return;
-  }
-
   if (message.target === "content") {
     return browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
       if (tabs[0]) {
@@ -61,14 +55,9 @@ async function fetchVoices(serverUrl) {
     if (!voices) throw new Error("Unexpected voices response format");
     return { ok: true, voices };
   } catch (err) {
-    const msg = err.message || "";
-    const isCertIssue = serverUrl.startsWith("https") &&
-      (msg.includes("NetworkError") || msg.includes("SSL") || msg.includes("certificate"));
     return {
       ok: false,
-      error: isCertIssue
-        ? "Connection failed — self-signed certificate? Click Test to accept it in Firefox."
-        : msg || "Cannot reach server"
+      error: err.message || "Cannot reach server"
     };
   }
 }
@@ -108,7 +97,6 @@ browser.runtime.onConnect.addListener((port) => {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          // Transfer the ArrayBuffer for efficiency
           port.postMessage({ type: "chunk", data: Array.from(value) });
         }
 

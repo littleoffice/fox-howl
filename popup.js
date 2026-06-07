@@ -1,6 +1,5 @@
 const serverUrlInput = document.getElementById("serverUrl");
 const voiceSelect = document.getElementById("voice");
-const testBtn = document.getElementById("testConnection");
 const playBtn = document.getElementById("play");
 const stopBtn = document.getElementById("stop");
 const statusEl = document.getElementById("status");
@@ -32,7 +31,6 @@ async function loadVoices(serverUrl, currentVoice) {
       serverUrl: serverUrl
     });
     if (result.ok) {
-      // Safe DOM construction instead of innerHTML
       while (voiceSelect.firstChild) {
         voiceSelect.removeChild(voiceSelect.firstChild);
       }
@@ -47,7 +45,6 @@ async function loadVoices(serverUrl, currentVoice) {
       throw new Error(result.error);
     }
   } catch (err) {
-    // Safe DOM construction instead of innerHTML
     while (voiceSelect.firstChild) {
       voiceSelect.removeChild(voiceSelect.firstChild);
     }
@@ -55,7 +52,7 @@ async function loadVoices(serverUrl, currentVoice) {
     opt.value = currentVoice;
     opt.textContent = currentVoice;
     voiceSelect.appendChild(opt);
-    statusEl.textContent = err.message || "Cannot reach server — click Test";
+    statusEl.textContent = err.message || "Cannot reach server";
     statusEl.className = "error";
   }
 }
@@ -64,18 +61,6 @@ serverUrlInput.addEventListener("change", () => {
   const url = serverUrlInput.value.trim();
   browser.storage.local.set({ serverUrl: url });
   loadVoices(url, voiceSelect.value);
-});
-
-testBtn.addEventListener("click", () => {
-  const url = serverUrlInput.value.trim();
-  if (!url) {
-    statusEl.textContent = "Enter a server URL first";
-    statusEl.className = "error";
-    return;
-  }
-  browser.runtime.sendMessage({ action: "openServerTab", serverUrl: url });
-  statusEl.textContent = "Accept cert, then reopen popup";
-  statusEl.className = "";
 });
 
 voiceSelect.addEventListener("change", () => {
