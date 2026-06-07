@@ -6,7 +6,11 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "fox-howl@addon",
-      "strict_min_version": "91.0"
+      "strict_min_version": "91.0",
+      "data_collection_permissions": {
+        "required": [],
+        "optional": []
+      }
     }
   },
   "permissions": [
@@ -28,8 +32,8 @@
   "browser_action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "48": "icons/fox-how.svg",
-      "96": "icons/fox-how.svg"
+      "48": "icons/fox-howl.svg",
+      "96": "icons/fox-howl.svg"
     },
     "default_title": "Fox Howl TTS"
   },
@@ -46,7 +50,7 @@
     }
   },
   "icons": {
-    "48": "icons/fox-how.svg",
-    "96": "icons/fox-how.svg"
+    "48": "icons/fox-howl.svg",
+    "96": "icons/fox-howl.svg"
   }
 }
