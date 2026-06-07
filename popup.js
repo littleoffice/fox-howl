@@ -32,7 +32,10 @@ async function loadVoices(serverUrl, currentVoice) {
       serverUrl: serverUrl
     });
     if (result.ok) {
-      voiceSelect.innerHTML = "";
+      // Safe DOM construction instead of innerHTML
+      while (voiceSelect.firstChild) {
+        voiceSelect.removeChild(voiceSelect.firstChild);
+      }
       for (const v of result.voices) {
         const opt = document.createElement("option");
         opt.value = v;
@@ -44,7 +47,14 @@ async function loadVoices(serverUrl, currentVoice) {
       throw new Error(result.error);
     }
   } catch (err) {
-    voiceSelect.innerHTML = `<option>${currentVoice}</option>`;
+    // Safe DOM construction instead of innerHTML
+    while (voiceSelect.firstChild) {
+      voiceSelect.removeChild(voiceSelect.firstChild);
+    }
+    const opt = document.createElement("option");
+    opt.value = currentVoice;
+    opt.textContent = currentVoice;
+    voiceSelect.appendChild(opt);
     statusEl.textContent = err.message || "Cannot reach server — click Test";
     statusEl.className = "error";
   }
@@ -73,10 +83,6 @@ voiceSelect.addEventListener("change", () => {
 });
 
 playBtn.addEventListener("click", () => {
-  // Always flush both fields to storage before speaking, so the content
-  // script reads the exact URL shown in the popup even if the input's
-  // `change` event hasn't fired yet (e.g. user typed and clicked Speak
-  // without blurring the field first).
   const url = serverUrlInput.value.trim();
   browser.storage.local.set({ serverUrl: url, voice: voiceSelect.value });
   browser.runtime.sendMessage({ target: "content", action: "speak" });
